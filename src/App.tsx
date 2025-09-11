@@ -31,7 +31,7 @@ function App() {
     } catch (error) {
       console.error("截图失败:", error);
     }
-  }, 30)).current; // 限制为每30ms最多执行一次
+  }, 20)).current; // 限制为每30ms最多执行一次
 
   // 使用 use-image hook 加载图像
   const [image] = useImage(imagePath || "");
@@ -41,7 +41,7 @@ function App() {
     const maximizeWindow = async () => {
       const currentWindow = getCurrentWebviewWindow();
       await currentWindow.maximize();
-    
+
     };
 
     maximizeWindow();
@@ -108,8 +108,6 @@ function App() {
   // 确认选择
   const handleConfirmSelection = async () => {
     // 这里可以添加确认选区后的处理逻辑
-    console.log("确认选区:", selectionRect);
-    
     const path = await save({
       filters: [
         {
@@ -118,7 +116,7 @@ function App() {
         },
       ],
     });
-    
+
     try {
 
       await invoke("capture", {
@@ -136,39 +134,6 @@ function App() {
     }
   };
 
-  const handleCopyToClipboard = async () => {
-    try {
-      
-
-
-      try {
-      const image: Uint8Array = await invoke("capture", {
-        x: selectionRect.x,
-        y: selectionRect.y,
-        width: selectionRect.width,
-        height: selectionRect.height
-      });
-        // 写入剪贴板
-        const img_data = await TauriImage.new(image, selectionRect.width, selectionRect.height)
-        await writeImage(img_data);
-        // 关闭窗口
-        const currentWindow = getCurrentWebviewWindow();
-        await currentWindow.close();
-
-        alert("已复制到剪贴板");
-      } catch (clipboardError: any) {
-        console.error("复制到剪贴板失败:", clipboardError);
-        alert("复制到剪贴板失败: " + clipboardError.message);
-        // 即使复制失败也关闭窗口
-        const currentWindow = getCurrentWebviewWindow();
-        // await currentWindow.close();
-      }
-    } catch (error) {
-      console.error("截图失败:", error);
-      // 添加用户友好的错误提示
-      alert("复制到剪贴板时出错，请重试");
-    }
-  }
 
 
   return (
@@ -298,12 +263,7 @@ function App() {
           >
             取消
           </button>
-          <button
-            onClick={handleCopyToClipboard}
-            className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-green-700 transition"
-          >
-            复制到剪贴板
-          </button>
+         
           <button
             onClick={handleConfirmSelection}
             className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
