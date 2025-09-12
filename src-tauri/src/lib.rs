@@ -68,6 +68,36 @@ fn xcap(x: u32, y: u32, width: Option<u32>, height: Option<u32>) -> Result<Vec<u
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|app| {
+            #[cfg(desktop)]
+            {
+                use tauri::Manager;
+                use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
+                let ctrl_shift_s_shortcut =
+                    Shortcut::new(Some(Modifiers::SUPER | Modifiers::SHIFT), Code::KeyS);
+
+                app.handle().plugin(
+                    tauri_plugin_global_shortcut::Builder::new()
+                        .with_handler(move |app, shortcut, _event| {
+                            let app_handle = app.clone(); // 克隆 handle 用于闭包
+                            println!("{:?}", shortcut);
+                            if shortcut == &ctrl_shift_s_shortcut {
+                                println!("Ctrl-Shift-S Detected!");
+                                app_handle
+                                    .get_webview_window("main")
+                                    .unwrap()
+                                    .show()
+                                    .unwrap();
+                            }
+                        })
+                        .build(),
+                )?;
+
+                app.global_shortcut().register(ctrl_shift_s_shortcut)?;
+            }
+            Ok(())
+        })
+        // .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())

@@ -5,8 +5,7 @@ import "./App.css";
 import { Stage, Layer, Text, Image as KonvaImage, Group, Rect, Line } from "react-konva";
 import { throttle } from "lodash";
 import useImage from "use-image";
-import { writeImage, readImage } from '@tauri-apps/plugin-clipboard-manager';
-import { Image as TauriImage } from "@tauri-apps/api/image";
+import { writeImage } from '@tauri-apps/plugin-clipboard-manager';
 import { save } from '@tauri-apps/plugin-dialog';
 
 function App() {
@@ -128,7 +127,7 @@ function App() {
       });
 
       const currentWindow = getCurrentWebviewWindow();
-      await currentWindow.close();
+      await currentWindow.hide();
     } catch (error) {
       console.error("关闭窗口时出错:", error);
     }
@@ -143,6 +142,10 @@ function App() {
         height: selectionRect.height
       });
       await writeImage(pngData);
+      setHasSelection(false);
+      setShowPreview(true);
+      setSelectionStart({ x: 0, y: 0 });
+      setSelectionEnd({ x: 0, y: 0 });
       const currentWindow = getCurrentWebviewWindow();
       await currentWindow.hide();
     } catch (error) {
