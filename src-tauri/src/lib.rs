@@ -3,10 +3,7 @@ use std::{
     io::{Cursor, Write},
     time::Instant,
 };
-use tauri::Runtime;
-use tauri_plugin_clipboard_manager::ClipboardExt;
 use xcap::Monitor;
-
 
 #[tauri::command]
 fn xcap_start(x: u32, y: u32, width: Option<u32>, height: Option<u32>) -> Result<Vec<u8>, String> {

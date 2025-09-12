@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import "./App.css";
-import { Stage, Layer, Text, Image, Group, Rect, Line } from "react-konva";
+import { Stage, Layer, Text, Image as KonvaImage, Group, Rect, Line } from "react-konva";
 import { throttle } from "lodash";
 import useImage from "use-image";
 import { writeImage, readImage } from '@tauri-apps/plugin-clipboard-manager';
@@ -134,10 +134,26 @@ function App() {
     }
   };
 
+  async function handleCopyToClipboard() {
+    try {
+      const pngData: Uint8Array = await invoke("capture", {
+        x: selectionRect.x,
+        y: selectionRect.y,
+        width: selectionRect.width,
+        height: selectionRect.height
+      });
+      await writeImage(pngData);
+      const currentWindow = getCurrentWebviewWindow();
+      await currentWindow.hide();
+    } catch (error) {
+      console.error("关闭窗口时出错:", error);
+    }
+  }
+
 
 
   return (
-    <main className="container">
+    <main className="container w-full h-full">
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
@@ -219,7 +235,7 @@ function App() {
               />
 
               {/* 截图预览图像 */}
-              <Image
+              <KonvaImage
                 x={0}
                 y={0}
                 width={200}
@@ -263,7 +279,14 @@ function App() {
           >
             取消
           </button>
-         
+
+          <button
+            onClick={handleCopyToClipboard}
+            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-gray-600 transition"
+          >
+            复制到剪切板
+          </button>
+
           <button
             onClick={handleConfirmSelection}
             className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
