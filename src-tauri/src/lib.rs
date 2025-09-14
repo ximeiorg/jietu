@@ -27,6 +27,7 @@ fn capture(
     Ok(data)
 }
 
+/// 截图
 fn xcap(x: u32, y: u32, width: Option<u32>, height: Option<u32>) -> Result<Vec<u8>, String> {
     let monitors = Monitor::all().map_err(|e| e.to_string())?;
 
@@ -75,11 +76,11 @@ pub fn run() {
                 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
                 let ctrl_shift_s_shortcut =
                     Shortcut::new(Some(Modifiers::SUPER | Modifiers::SHIFT), Code::KeyS);
-
+                //快捷键唤醒监听
                 app.handle().plugin(
                     tauri_plugin_global_shortcut::Builder::new()
                         .with_handler(move |app, shortcut, _event| {
-                            let app_handle = app.clone(); // 克隆 handle 用于闭包
+                            let app_handle = app.clone(); 
                             println!("{:?}", shortcut);
                             if shortcut == &ctrl_shift_s_shortcut {
                                 println!("Ctrl-Shift-S Detected!");
